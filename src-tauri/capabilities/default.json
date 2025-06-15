@@ -1,0 +1,210 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "dialog:default",
+    "core:window:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-center",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-close",
+    "core:window:allow-destroy",
+    "core:window:allow-hide",
+    "core:window:allow-set-size",
+    "core:window:allow-is-visible",
+    "core:window:allow-show",
+    "fs:scope-download",
+    "fs:allow-download-read",
+    "clipboard-manager:default",
+    "clipboard-manager:allow-read-image",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-html",
+    "clipboard-manager:allow-write-image",
+    "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-clear",
+    "fs:allow-read-dir",
+    "fs:allow-create",
+    "fs:allow-fstat",
+    "fs:allow-write",
+    "fs:allow-read-file",
+    "fs:allow-read-text-file",
+    "fs:allow-write-file",
+    "fs:allow-write-text-file",
+    "fs:allow-lstat",
+    "fs:allow-download-meta-recursive",
+    "fs:allow-download-read-recursive",
+    "fs:allow-download-write-recursive",
+    "upload:allow-download",
+    "upload:allow-upload",
+    "http:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://*.tauri.app" },
+        { "url": "https://real-time-web-search.p.rapidapi.com/search" },
+        { "url": "https://duckduckgo8.p.rapidapi.com" },
+        { "url": "https://google-search-master.p.rapidapi.com" }
+      ]
+    },
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$AUDIO"
+        },
+        {
+          "path": "$AUDIO/**"
+        },
+        {
+          "path": "$CACHE"
+        },
+        {
+          "path": "$CACHE/**"
+        },
+        {
+          "path": "$CONFIG"
+        },
+        {
+          "path": "$CONFIG/**"
+        },
+        {
+          "path": "$DATA"
+        },
+        {
+          "path": "$DATA/**"
+        },
+        {
+          "path": "$LOCALDATA"
+        },
+        {
+          "path": "$LOCALDATA/**"
+        },
+        {
+          "path": "$DESKTOP"
+        },
+        {
+          "path": "$DESKTOP/**"
+        },
+        {
+          "path": "$DOCUMENT"
+        },
+        {
+          "path": "$DOCUMENT/**"
+        },
+        {
+          "path": "$DOWNLOAD"
+        },
+        {
+          "path": "$DOWNLOAD/**"
+        },
+        {
+          "path": "$EXE"
+        },
+        {
+          "path": "$EXE/**"
+        },
+        {
+          "path": "$FONT"
+        },
+        {
+          "path": "$FONT/**"
+        },
+        {
+          "path": "$HOME"
+        },
+        {
+          "path": "$HOME/**"
+        },
+        {
+          "path": "$PICTURE"
+        },
+        {
+          "path": "$PICTURE/**"
+        },
+        {
+          "path": "$PUBLIC"
+        },
+        {
+          "path": "$PUBLIC/**"
+        },
+        {
+          "path": "$RUNTIME"
+        },
+        {
+          "path": "$RUNTIME/**"
+        },
+        {
+          "path": "$TEMPLATE"
+        },
+        {
+          "path": "$TEMPLATE/**"
+        },
+        {
+          "path": "$VIDEO"
+        },
+        {
+          "path": "$VIDEO/**"
+        },
+        {
+          "path": "$RESOURCE"
+        },
+        {
+          "path": "$RESOURCE/**"
+        },
+        {
+          "path": "$APP"
+        },
+        {
+          "path": "$APP/**"
+        },
+        {
+          "path": "$LOG"
+        },
+        {
+          "path": "$LOG/**"
+        },
+        {
+          "path": "$TEMP"
+        },
+        {
+          "path": "$TEMP/**"
+        },
+        {
+          "path": "$APPCONFIG"
+        },
+        {
+          "path": "$APPCONFIG/**"
+        },
+        {
+          "path": "$APPDATA"
+        },
+        {
+          "path": "$APPDATA/**"
+        },
+        {
+          "path": "$APPLOCALDATA"
+        },
+        {
+          "path": "$APPLOCALDATA/**"
+        },
+        {
+          "path": "$APPCACHE"
+        },
+        {
+          "path": "$APPCACHE/**"
+        },
+        {
+          "path": "$APPLOG"
+        },
+        {
+          "path": "$APPLOG/**"
+        }
+      ]
+    }
+  ]
+}

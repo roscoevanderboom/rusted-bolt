@@ -1,0 +1,21 @@
+// Common patterns to ignore, similar to .gitignore
+export const IGNORE_PATTERNS = [
+  "**/node_modules/**",
+  "**/.git/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/.next/**",
+  "**/coverage/**",
+  "**/.cache/**",
+  "**/.vscode/**",
+  "**/.idea/**",
+  "**/*.log",
+  "**/.DS_Store",
+  "**/npm-debug.log*",
+  "**/yarn-debug.log*",
+  "**/yarn-error.log*",
+  "**/pnpm-lock.yaml*",
+  "**/tsconfig.node.json*",
+  "**/tsconfig.app.json*",
+  "**/src-tauri/target/**",
+];

@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When working on any changes or implementations:
+
+1. Analyze the complete system architecture and component relationships before making modifications
+2. Consider all dependencies, parent-child component interactions, and potential side effects
+3. Do not install or modify external dependencies without explicit user approval
+4. For breaking changes:
+   - Present a detailed implementation plan
+   - Outline potential impacts
+   - Wait for user confirmation before proceeding
+5. Take initiative to implement solutions unless specifically asked to plan only
+6. Request additional context only when essential for proper implementation
+7. Document any assumptions made during implementation
+8. Validate changes against the entire system, not just individual components
+
+
+Follow this approach for all tasks unless given different specific instructions.

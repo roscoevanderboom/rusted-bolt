@@ -1,0 +1,65 @@
+---
+description: When performing style alterations or encoutering style bugs
+globs: 
+alwaysApply: false
+---
+Here’s a concise **style outline** for your VSCode Clone app, tailored for future consistency:
+
+---
+
+### VSCode Clone Style Guide
+
+#### **Layout & Structure**
+- **Root containers:** Use `h-screen`, `flex`, `flex-col`, and `min-h-0` to ensure full viewport height and proper flexbox behavior.
+- **Main content split:** Use `flex` for horizontal splits (sidebar, main, chat), and `flex-1 min-w-0 min-h-0` for resizable/fillable areas.
+- **Overflow:** Always use `overflow-hidden` on main containers to prevent unwanted scrollbars.
+
+#### **Panels (Sidebar, Terminal, Chat, etc.)**
+- **Panel containers:** `flex flex-col h-full min-h-0` for vertical stacking and scrollable content.
+- **Headers:** `flex items-center justify-between px-4 py-2` with a distinct background and border.
+- **Scrollable areas:** Use a native `div` with `flex-1 overflow-y-auto min-h-0` for message/file lists, etc.
+
+#### **Colors**
+- **Backgrounds:**  
+  - Main: `bg-[#1e1e1e]`  
+  - Sidebar: `bg-[#252526]`  
+  - Headers: `bg-[#2d2d30]`  
+  - Chat/Terminal: `bg-[#252526]`  
+- **Borders:** `border-[#3e3e42]`
+- **Text:**  
+  - Default: `text-[#cccccc]`  
+  - Muted: `text-[#969696]`  
+  - Accent: `text-[#007acc]` (buttons, highlights)
+
+#### **Buttons & Icons**
+- **Buttons:**  
+  - Use `variant="ghost"` for toolbar buttons  
+  - `hover:bg-[#2a2d2e]` for hover state  
+  - `text-[#cccccc]` for icon color
+- **Icons:**  
+  - Use Lucide icons, size `w-4 h-4` or `w-3 h-3` for compactness
+
+#### **Chat Panel**
+- **Width:** `w-80 lg:w-96`
+- **Header:** `flex items-center justify-between p-3 border-b`
+- **Messages:**  
+  - User: `bg-[#007acc] text-white ml-auto`  
+  - Assistant: `bg-[#3e3e42] text-[#cccccc]`
+- **Input:**  
+  - `bg-[#3c3c3c] border-[#3e3e42] text-[#cccccc] placeholder-[#969696]`
+  - Button: `bg-[#007acc] hover:bg-[#005a9e] text-white`
+
+#### **General**
+- **Font:** `"Fira Code, Monaco, Consolas, monospace"` for code/terminal/editor
+- **Spacing:** Use Tailwind’s `gap`, `px`, `py`, and `space-y` utilities for consistent spacing.
+- **Responsiveness:** Use `min-w-0` and `min-h-0` on flex children to prevent overflow issues.
+
+---
+
+**Tip:**  
+Always ensure scrollable areas have a parent with `min-h-0` and use `flex-1 overflow-y-auto min-h-0` on the scrollable div.
+
+---
+
+You can save this outline for future reference to keep your styles consistent!
+
