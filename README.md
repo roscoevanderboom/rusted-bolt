@@ -40,10 +40,13 @@ git clone https://github.com/roscoevanderboom/rusted-boltz.git
 cd rusted-boltz
 
 # Install dependencies
-npm install
+deno | npm | pnpm install
 
 # Start the development server
-npm run tauri dev
+deno task | npm run | pnpm tauri dev
+
+# Build installable package 
+deno task | npm run | pnpm tauri build
 ```
 
 ### Configuration
