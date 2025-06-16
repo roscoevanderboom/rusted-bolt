@@ -15,6 +15,10 @@ An AI-driven code automation and execution platform that brings modern developme
 
 ## ✨ Key Features
 
+
+https://github.com/user-attachments/assets/15a1a65b-cc8c-4949-bb61-e24963adb22a
+
+
 🤖 **AI-Powered Development** - Intelligent code generation, refactoring, and assistance using multiple AI providers  
 ⚡ **WebContainer Runtime** - Execute Node.js applications directly in your browser with full npm ecosystem support  
 📁 **Integrated File Management** - Full-featured file explorer with Monaco Editor for seamless code editing  
