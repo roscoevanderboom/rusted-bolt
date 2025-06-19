@@ -16,7 +16,9 @@ An AI-driven code automation and execution platform that brings modern developme
 ## ✨ Key Features
 
 
-https://github.com/user-attachments/assets/15a1a65b-cc8c-4949-bb61-e24963adb22a
+
+https://github.com/user-attachments/assets/67384642-4a53-445b-aead-be9c9df6b402
+
 
 
 🤖 **AI-Powered Development** - Intelligent code generation, refactoring, and assistance using multiple AI providers  
