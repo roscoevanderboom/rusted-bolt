@@ -1,8 +1,4 @@
-import { createOpenAI } from "@ai-sdk/openai";
-import { createGroq } from "@ai-sdk/groq";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { message } from "@tauri-apps/plugin-dialog";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import {
   APICallError,
   CoreMessage,
@@ -44,6 +40,27 @@ const MAX_STEPS = 10;
 const MAX_RETRIES = 3;
 const DEFAULT_REASONING_EFFORT = "low";
 
+// Lazy loading functions for AI providers
+const loadOpenAI = async () => {
+  const { createOpenAI } = await import("@ai-sdk/openai");
+  return createOpenAI;
+};
+
+const loadGroq = async () => {
+  const { createGroq } = await import("@ai-sdk/groq");
+  return createGroq;
+};
+
+const loadGoogle = async () => {
+  const { createGoogleGenerativeAI } = await import("@ai-sdk/google");
+  return createGoogleGenerativeAI;
+};
+
+const loadOpenAICompatible = async () => {
+  const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
+  return createOpenAICompatible;
+};
+
 // Logging utility
 class Logger {
   private static log(level: string, message: string, data?: any) {
@@ -70,40 +87,70 @@ class Logger {
   }
 }
 
-// Provider factory
+// Provider factory with lazy loading
 class ProviderFactory {
-  static createProvider(selectedModel: Model) {
+  private static providerCache = new Map<string, any>();
+
+  static async createProvider(selectedModel: Model) {
     Logger.info("Creating provider for model", selectedModel);
 
-    const providers = {
-      openai: () =>
-        createOpenAI({
-          apiKey: getApiKey("OpenAI"),
-          compatibility: "strict",
-        })(selectedModel.id),
+    const cacheKey = `${selectedModel.provider}-${selectedModel.id}`;
+    
+    // Check cache first
+    if (this.providerCache.has(cacheKey)) {
+      Logger.debug("Using cached provider", cacheKey);
+      return this.providerCache.get(cacheKey);
+    }
 
-      google: () =>
-        createGoogleGenerativeAI({
-          apiKey: getApiKey("Google"),
-        })(selectedModel.id, { useSearchGrounding: true }),
+    let provider: any;
 
-      groq: () =>
-        createGroq({
-          apiKey: getApiKey("Groq"),
-        })(selectedModel.id),
+    try {
+      switch (selectedModel.provider) {
+        case "openai":
+          const createOpenAI = await loadOpenAI();
+          provider = createOpenAI({
+            apiKey: getApiKey("OpenAI"),
+            compatibility: "strict",
+          })(selectedModel.id);
+          break;
 
-      default: () =>
-        createOpenAICompatible({
-          apiKey: "not_needed",
-          baseURL: "http://127.0.0.1:1234/v1",
-          name: "lmstudio",
-        })(selectedModel.id),
-    };
+        case "google":
+          const createGoogleGenerativeAI = await loadGoogle();
+          provider = createGoogleGenerativeAI({
+            apiKey: getApiKey("Google"),
+          })(selectedModel.id, { useSearchGrounding: true });
+          break;
 
-    const providerCreator =
-      providers[selectedModel.provider as keyof typeof providers] ||
-      providers.default;
-    return providerCreator();
+        case "groq":
+          const createGroq = await loadGroq();
+          provider = createGroq({
+            apiKey: getApiKey("Groq"),
+          })(selectedModel.id);
+          break;
+
+        default:
+          const createOpenAICompatible = await loadOpenAICompatible();
+          provider = createOpenAICompatible({
+            apiKey: "not_needed",
+            baseURL: "http://127.0.0.1:1234/v1",
+            name: "lmstudio",
+          })(selectedModel.id);
+          break;
+      }
+
+      // Cache the provider
+      this.providerCache.set(cacheKey, provider);
+      Logger.debug("Cached provider", cacheKey);
+      
+      return provider;
+    } catch (error) {
+      Logger.error("Failed to create provider", { model: selectedModel, error });
+      throw error;
+    }
+  }
+
+  static clearCache() {
+    this.providerCache.clear();
   }
 }
 
@@ -312,7 +359,8 @@ export class AIService {
       // Start streaming
       onEvent({ type: "streaming", data: true });
 
-      const provider = ProviderFactory.createProvider(model);
+      // Load provider dynamically
+      const provider = await ProviderFactory.createProvider(model);
       if (!provider) {
         Logger.error("No provider found for model", model);
         onEvent({ type: "streaming", data: false });

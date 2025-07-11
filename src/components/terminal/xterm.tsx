@@ -1,13 +1,8 @@
-import React from "react";
-import { Zap } from "lucide-react";
-import XtermToolbar from "./xterm-toolbar";
-import useXterm from "@/hooks/use-xterm";
-import { TERMINAL_THEMES } from "@/constants/terminal-themes";
+import React, { useState, useRef, useCallback, useEffect, Suspense } from "react";
+import { Terminal as TerminalIcon } from "lucide-react";
 import { WebContainer } from "@webcontainer/api";
-import XtermSearchBar from "./xterm-search-bar";
-import XtermSettingsPanel from "./xterm-settings-panel";
 
-type ThemeName = keyof typeof TERMINAL_THEMES;
+type ThemeName = "dark" | "light" | "monokai" | "github";
 
 interface XtermTerminalProps {
   webcontainerInstance: WebContainer;
@@ -23,121 +18,102 @@ interface XtermTerminalProps {
   onOutput?: (data: string) => void;
 }
 
-const XtermTerminal: React.FC<XtermTerminalProps> = ({
-  webcontainerInstance,
-  initialCommand,
-  className = "",
-  title = "Terminal",
-  showToolbar = true,
-  theme = "dark",
-  fontSize = 14,
-  fontFamily = "monospace",
-  onProcessStart,
-  onProcessEnd,
-  onOutput,
-}) => {
-  const {
-    state,
-    actions,
-    terminalRef,
-    terminalContainerRef,
-    searchAddon,
-  } = useXterm({
-    webcontainerInstance,
-    initialCommand,
-    theme,
-    fontSize,
-    fontFamily,
-    onProcessStart,
-    onProcessEnd,
-    onOutput,
-  });
+// Lazy load the actual terminal component
+const LazyXtermTerminal = React.lazy(() => import("./xterm-core"));
 
-  const [searchValue, setSearchValue] = React.useState("");
-
-  return (
-    <div
-      ref={terminalContainerRef}
-      className={`flex flex-col h-full bg-stone-950 border border-stone-700/40 overflow-hidden ${
-        state.isFullscreen ? "fixed inset-0 z-50" : ""
-      } ${className}`}
-    >
-      {/* Toolbar */}
-      {showToolbar && (
-        <XtermToolbar
-          title={title}
-          isConnected={state.isConnected}
-          isFullscreen={state.isFullscreen}
-          onRestart={actions.restart}
-          onClear={actions.clear}
-          onCopy={actions.copy}
-          onDownload={actions.download}
-          onToggleSearch={() =>
-            actions && actions.toggleSearch
-              ? actions.toggleSearch()
-              : null
-          }
-          onToggleSettings={() =>
-            actions && actions.toggleSettings
-              ? actions.toggleSettings()
-              : null
-          }
-          onToggleFullscreen={actions.toggleFullscreen}
-          showSearch={state.showSearch}
-          showSettings={state.showSettings}
-        />
-      )}
-
-      {/* Search bar */}
-      {state.showSearch && (
-        <XtermSearchBar
-          value={searchValue}
-          onChange={val => {
-            setSearchValue(val);
-            if (searchAddon) searchAddon.findNext(val);
-          }}
-          onClose={() => actions && actions.toggleSearch ? actions.toggleSearch() : null}
-        />
-      )}
-
-      {/* Settings panel */}
-      {state.showSettings && (
-        <XtermSettingsPanel
-          currentTheme={state.currentTheme}
-          fontSize={state.fontSize}
-          onThemeChange={actions.updateTheme}
-          onFontSizeChange={actions.updateFontSize}
-        />
-      )}
-
-      {/* Terminal */}
-      <div
-        ref={terminalRef}
-        className="flex-1 min-h-0"
-        style={{
-          background: TERMINAL_THEMES[state.currentTheme].background,
-        }}
-      />
-
-      {/* Status bar */}
-      {showToolbar && (
-        <div className="flex items-center justify-between px-4 py-1 bg-stone-900 border-t border-stone-700/40 text-xs text-stone-500">
-          <div className="flex items-center gap-4">
-            <span>Shell: jsh</span>
-            <span>Theme: {state.currentTheme}</span>
-            <span>Font: {state.fontSize}px</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {state.isProcessRunning && (
-              <div className="flex items-center gap-1 text-green-400">
-                <Zap className="w-3 h-3" />
-                <span>Running</span>
-              </div>
-            )}
+// Terminal loading component
+const TerminalLoader = ({ 
+  onLoad, 
+  error 
+}: { 
+  onLoad: () => void; 
+  error: string | null; 
+}) => (
+  <div className="flex flex-col items-center justify-center h-full bg-stone-950 border border-stone-700/40">
+    {error ? (
+      <div className="text-center text-red-400">
+        <div className="mb-4">
+          <TerminalIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Failed to load terminal</p>
+          <p className="text-xs text-stone-500 mt-1">{error}</p>
+        </div>
+        <button
+          onClick={onLoad}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    ) : (
+      <div className="text-center text-stone-400">
+        <div className="mb-4">
+          <TerminalIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <div className="flex items-center justify-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-stone-400"></div>
+            <span className="text-sm">Loading terminal...</span>
           </div>
         </div>
-      )}
-    </div>
+        <button
+          onClick={onLoad}
+          className="px-4 py-2 bg-stone-700 text-white rounded hover:bg-stone-600 transition-colors"
+        >
+          Load Terminal
+        </button>
+      </div>
+    )}
+  </div>
+);
+
+const XtermTerminal: React.FC<XtermTerminalProps> = (props) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const loadAttemptRef = useRef(0);
+
+  const handleLoad = useCallback(() => {
+    loadAttemptRef.current += 1;
+    setLoadError(null);
+    setIsLoaded(true);
+  }, []);
+
+  const handleError = useCallback((error: any) => {
+    console.error("Terminal loading error:", error);
+    setLoadError(error.message || "Unknown error occurred");
+    setIsLoaded(false);
+  }, []);
+
+  // Auto-load on mount for better UX (but keep manual loading option)
+  useEffect(() => {
+    // Auto-load after a short delay to allow other components to load first
+    const timer = setTimeout(() => {
+      if (!isLoaded && loadAttemptRef.current === 0) {
+        handleLoad();
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isLoaded, handleLoad]);
+
+  if (!isLoaded) {
+    return <TerminalLoader onLoad={handleLoad} error={loadError} />;
+  }
+
+  return (
+    <Suspense 
+      fallback={
+        <div className="flex items-center justify-center h-full bg-stone-950 border border-stone-700/40">
+          <div className="flex items-center gap-2 text-stone-400">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-stone-400"></div>
+            <span className="text-sm">Initializing terminal...</span>
+          </div>
+        </div>
+      }
+    >
+      <LazyXtermTerminal 
+        {...props} 
+        onError={handleError}
+        key={loadAttemptRef.current} // Force re-mount on retry
+      />
+    </Suspense>
   );
 };
 
