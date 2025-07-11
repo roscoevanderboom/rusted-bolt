@@ -1,12 +1,8 @@
 import { createBrowserRouter } from "react-router";
+import { lazy, Suspense } from "react";
 import App, { appLoader } from "./App";
-import LoadingSpinner from "./components/loading";
-import Landing from "./pages/landing";
+import Loading from "./components/loading";
 import { CodeIcon, HomeIcon, SettingsIcon } from "lucide-react";
-import IDE from "./pages/ide";
-import Settings from "./pages/settings";
-import CloudProviders from "./components/settings/cloud-providers";
-import SettingsControlPanel from "./components/settings/settings-control-panel";
 export const routerLinks = [
   {
     path: "/",
@@ -25,36 +21,47 @@ export const routerLinks = [
   },
 ];
 
+// Lazy load page components for better code splitting
+const LandingPage = lazy(() => import("./pages/landing"));
+const IDEPage = lazy(() => import("./pages/ide"));
+const SettingsPage = lazy(() => import("./pages/settings"));
+
+// Wrapper component for lazy loaded routes with loading state
+const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<Loading />}>
+    {children}
+  </Suspense>
+);
+
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: App,
-    hydrateFallbackElement: <LoadingSpinner />,
+    element: <App />,
     loader: appLoader,
     children: [
       {
         index: true,
-        path: "/",
-        Component: Landing,
+        element: (
+          <LazyWrapper>
+            <LandingPage />
+          </LazyWrapper>
+        ),
       },
       {
-        path: "/ide",
-        Component: IDE,
+        path: "ide",
+        element: (
+          <LazyWrapper>
+            <IDEPage />
+          </LazyWrapper>
+        ),
       },
       {
-        path: "/settings",
-        Component: Settings,
-        children: [
-          {
-            index: true,
-            path: "/settings",
-            Component: SettingsControlPanel,
-          },
-          {
-            path: "/settings/cloud-providers",
-            Component: CloudProviders,
-          },
-        ],
+        path: "settings",
+        element: (
+          <LazyWrapper>
+            <SettingsPage />
+          </LazyWrapper>
+        ),
       },
     ],
   },
